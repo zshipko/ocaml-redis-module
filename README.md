@@ -1,5 +1,7 @@
 # ocaml-redis-module
 
+**WARNING: This will probably crash Redis for non-trivial modules!**
+
 `ocaml-redis-module` provides an interface for building [Redis](https://github.com/antirez/redis) modules in OCaml.
 
 ## Building
