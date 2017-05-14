@@ -68,97 +68,78 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
 
 value module_init (value _ctx, value name, value ver, value api_ver)
 {
-    CAMLparam4(_ctx, name, ver, api_ver);
     RedisModuleCtx *ctx = (RedisModuleCtx*)_ctx;
-    CAMLlocal1(r);
-    r = Val_int(RedisModule_Init(ctx, String_val(name), Int_val(ver), Int_val(api_ver)));
+    return Val_int(RedisModule_Init(ctx, String_val(name), Int_val(ver), Int_val(api_ver)));
 }
 
 value module_create_command_internal(value _ctx, value name, value flags, value keyinfo){
-    CAMLparam4(_ctx, name, flags, keyinfo);
-    CAMLreturn(RedisModule_CreateCommand((RedisModuleCtx*)_ctx, String_val(name), internalCommandWrapper, String_val(flags), Int_val(Field(keyinfo, 0)), Int_val((Field(keyinfo, 1))), Int_val(Field(keyinfo, 2))));
+    return(RedisModule_CreateCommand((RedisModuleCtx*)_ctx, String_val(name), internalCommandWrapper, String_val(flags), Int_val(Field(keyinfo, 0)), Int_val((Field(keyinfo, 1))), Int_val(Field(keyinfo, 2))));
 }
 
 value module_get_selected_db(value ctx){
-    CAMLparam1(ctx);
-    CAMLreturn(Val_int(RedisModule_GetSelectedDb((RedisModuleCtx*)ctx)));
+    return(Val_int(RedisModule_GetSelectedDb((RedisModuleCtx*)ctx)));
 }
 
 value module_select_db(value ctx, value db){
-    CAMLparam1(ctx);
-    CAMLreturn(Val_int(RedisModule_SelectDb((RedisModuleCtx*)ctx, Int_val(db))));
+    return(Val_int(RedisModule_SelectDb((RedisModuleCtx*)ctx, Int_val(db))));
 }
 
 value module_replicate_internal(value ctx, value cmd, value args){
-    CAMLparam3(ctx, cmd, args);
-    CAMLreturn(RedisModule_Replicate((RedisModuleCtx*)ctx, String_val(cmd), "b", String_val(args), caml_string_length(args)));
+    return(RedisModule_Replicate((RedisModuleCtx*)ctx, String_val(cmd), "b", String_val(args), caml_string_length(args)));
 }
 
 value module_replicate_verbatim(value ctx){
-    CAMLparam1(ctx);
-    CAMLreturn(Val_int(RedisModule_ReplicateVerbatim((RedisModuleCtx*)ctx)));
+    return(Val_int(RedisModule_ReplicateVerbatim((RedisModuleCtx*)ctx)));
 }
 
 
 // Reply
 value reply_wrong_arity(value _ctx){
-    CAMLparam1(_ctx);
-    CAMLreturn(Val_int(RedisModule_WrongArity((RedisModuleCtx*)_ctx)));
+    return(Val_int(RedisModule_WrongArity((RedisModuleCtx*)_ctx)));
 }
 
 value reply_int64(value _ctx, value i){
-    CAMLparam2(_ctx, i);
-    CAMLreturn(Val_int(RedisModule_ReplyWithLongLong((RedisModuleCtx*)_ctx, Int64_val(i))));
+    return(Val_int(RedisModule_ReplyWithLongLong((RedisModuleCtx*)_ctx, Int64_val(i))));
 }
 
 value reply_int(value _ctx, value i){
-    CAMLparam2(_ctx, i);
-    CAMLreturn(Val_int(RedisModule_ReplyWithLongLong((RedisModuleCtx*)_ctx, Int_val(i))));
+    return(Val_int(RedisModule_ReplyWithLongLong((RedisModuleCtx*)_ctx, Int_val(i))));
 }
 
 value reply_simple_string(value _ctx, value s){
-    CAMLparam2(_ctx, s);
-    CAMLreturn(Val_int(RedisModule_ReplyWithSimpleString((RedisModuleCtx*)_ctx, String_val(s))));
+    return(Val_int(RedisModule_ReplyWithSimpleString((RedisModuleCtx*)_ctx, String_val(s))));
 }
 
 value reply_error(value _ctx, value s){
-    CAMLparam2(_ctx, s);
-    CAMLreturn(Val_int(RedisModule_ReplyWithError((RedisModuleCtx*)_ctx, String_val(s))));
+    return(Val_int(RedisModule_ReplyWithError((RedisModuleCtx*)_ctx, String_val(s))));
 }
 
 value reply_null(value _ctx){
-    CAMLparam1(_ctx);
-    CAMLreturn(Val_int(RedisModule_ReplyWithNull((RedisModuleCtx*)_ctx)));
+    return(Val_int(RedisModule_ReplyWithNull((RedisModuleCtx*)_ctx)));
 }
 
 value reply_array(value _ctx, value i){
-    CAMLparam2(_ctx, i);
-    CAMLreturn(Val_int(RedisModule_ReplyWithArray((RedisModuleCtx*)_ctx, Int_val(i))));
+    return (Val_int(RedisModule_ReplyWithArray((RedisModuleCtx*)_ctx, Int_val(i))));
 }
 
 value reply_set_array_length(value _ctx, value i){
-    CAMLparam2(_ctx, i);
     RedisModule_ReplySetArrayLength((RedisModuleCtx*)_ctx, Int_val(i));
-    CAMLreturn(Val_unit);
+    return(Val_unit);
 }
 
 value reply_string(value _ctx, value s){
-    CAMLparam2(_ctx, s);
-    CAMLreturn(Val_int(RedisModule_ReplyWithStringBuffer((RedisModuleCtx*)_ctx, String_val(s), caml_string_length(s))));
+    return(Val_int(RedisModule_ReplyWithStringBuffer((RedisModuleCtx*)_ctx, String_val(s), caml_string_length(s))));
 }
 
 value reply_rstring(value _ctx, value s){
-    CAMLparam2(_ctx, s);
-    CAMLreturn(Val_int(RedisModule_ReplyWithString((RedisModuleCtx*)_ctx, (RedisModuleString*)s)));
+    return(Val_int(RedisModule_ReplyWithString((RedisModuleCtx*)_ctx, (RedisModuleString*)s)));
 }
 
 value reply_float(value _ctx, value f){
-    CAMLparam2(_ctx, f);
-    CAMLreturn (Val_int(RedisModule_ReplyWithDouble((RedisModuleCtx*)_ctx, Double_val(f))));
+    return (Val_int(RedisModule_ReplyWithDouble((RedisModuleCtx*)_ctx, Double_val(f))));
 }
 
 value reply_call_reply(value _ctx, value reply){
-    CAMLparam2(_ctx, reply);
-    CAMLreturn (Val_int(RedisModule_ReplyWithCallReply((RedisModuleCtx*)_ctx, (RedisModuleCallReply*)reply)));
+    return (Val_int(RedisModule_ReplyWithCallReply((RedisModuleCtx*)_ctx, (RedisModuleCallReply*)reply)));
 }
 
