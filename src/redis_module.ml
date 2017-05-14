@@ -22,25 +22,6 @@ module Call_reply = struct
     external index : t -> int64 -> t option = "call_reply_index"
 end
 
-(* Reply *)
-module Reply = struct
-    external wrong_arity : context -> status = "reply_wrong_arity"
-    external int64 : context -> int64 -> status = "reply_int64"
-    external int : context -> int -> status = "reply_int"
-    external simple_string : context -> string -> status = "reply_simple_string"
-    external error : context -> string -> status = "reply_error"
-    external null : context -> status = "reply_null"
-    external array : context -> int -> status = "reply_array"
-    external set_array_length : context -> int -> unit = "reply_set_array_length"
-    external string : context -> string -> status = "reply_string"
-    external float : context -> float -> status = "reply_float"
-    external call_reply : context -> Call_reply.t -> status = "reply_call_reply"
-end
-
-module Key = struct
-    type t
-end
-
 module String = struct
     type t
     external to_string : t -> string = "rstring_to_string"
@@ -57,6 +38,32 @@ module String = struct
     external compare : t -> t -> int = "rstring_compare"
 end
 
+module Args = struct
+    type t
+    external get : t -> int -> String.t = "args_get"
+    external length : t -> int = "args_length"
+end
+
+(* Reply *)
+module Reply = struct
+    external wrong_arity : context -> status = "reply_wrong_arity"
+    external int64 : context -> int64 -> status = "reply_int64"
+    external int : context -> int -> status = "reply_int"
+    external simple_string : context -> string -> status = "reply_simple_string"
+    external error : context -> string -> status = "reply_error"
+    external null : context -> status = "reply_null"
+    external array : context -> int -> status = "reply_array"
+    external set_array_length : context -> int -> unit = "reply_set_array_length"
+    external string : context -> string -> status = "reply_string"
+    external rstring : context -> String.t -> status = "reply_rstring"
+    external float : context -> float -> status = "reply_float"
+    external call_reply : context -> Call_reply.t -> status = "reply_call_reply"
+end
+
+module Key = struct
+    type t
+end
+
 (* Internal functions *)
 external create_command_internal : context -> string -> string -> (int * int * int) -> status = "module_create_command_internal"
 external call_internal : context -> string -> string -> Call_reply.t = "module_call_internal"
@@ -65,10 +72,10 @@ external replicate_internal : context ->  string -> string -> status = "module_r
 (* General module functions *)
 external init : context -> string -> int -> int -> status = "module_init"
 
-let on_load (fn : context -> String.t list -> status) =
+let on_load (fn : context -> Args.t -> status) =
     Callback.register "redis_module_on_load" fn
 
-let create_command ctx name (fn : context -> String.t array -> status) flags keyinfo =
+let create_command ctx name (fn : context -> Args.t -> status) flags keyinfo =
     Callback.register name fn;
     create_command_internal ctx name flags keyinfo
 
