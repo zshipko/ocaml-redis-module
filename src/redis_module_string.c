@@ -25,18 +25,15 @@ value rstring_to_float(value str){
 }
 
 value rstring_append(value ctx, value str, value b){
-    CAMLparam2(str, b);
-    CAMLreturn(Val_int(RedisModule_StringAppendBuffer((RedisModuleCtx*)ctx, (RedisModuleString*)str, String_val(b), caml_string_length(b))));
+    return(Val_int(RedisModule_StringAppendBuffer((RedisModuleCtx*)ctx, (RedisModuleString*)str, String_val(b), caml_string_length(b))));
 }
 
 value rstring_compare(value a, value b){
-    CAMLparam2(a, b);
-    CAMLreturn(Val_int(RedisModule_StringCompare((RedisModuleString*)a, (RedisModuleString*)b)));
+    return(Val_int(RedisModule_StringCompare((RedisModuleString*)a, (RedisModuleString*)b)));
 }
 
 value rstring_from_call_reply(value cr){
-    CAMLparam1(cr);
-    CAMLreturn((value)RedisModule_CreateStringFromCallReply((RedisModuleCallReply*)cr));
+    return((value)RedisModule_CreateStringFromCallReply((RedisModuleCallReply*)cr));
 }
 
 value rstring_from_string(value ctx, value str){

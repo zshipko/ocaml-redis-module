@@ -1,8 +1,8 @@
 open Redis_module
 
 let echo ctx args =
-    if Array.length args < 2 then Reply.wrong_arity ctx
-    else Reply.simple_string ctx (String.to_string args.(1))
+    if Args.length args < 2 then Reply.wrong_arity ctx
+    else Reply.simple_string ctx (String.to_string (Args.get args 1))
 
 let _ =
 on_load (fun ctx args ->
