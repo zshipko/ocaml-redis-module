@@ -4,7 +4,7 @@
 #include "redismodule.h"
 
 #include <caml/mlvalues.h>
-#include <caml/custom.h>
+//#include <caml/custom.h>
 #include <caml/alloc.h>
 #include <caml/intext.h>
 #include <caml/fail.h>

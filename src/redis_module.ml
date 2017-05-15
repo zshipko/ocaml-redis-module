@@ -76,7 +76,7 @@ let on_load (fn : context -> Args.t -> status) =
     Callback.register "redis_module_on_load" fn
 
 let create_command ctx name (fn : context -> Args.t -> status) flags keyinfo =
-    Callback.register name fn;
+    Callback.register name (fun ctx args -> let x = fn ctx args in Gc.major (); Gc.minor (); x);
     create_command_internal ctx name flags keyinfo
 
 external get_selected_db : context -> int = "module_get_selected_db"

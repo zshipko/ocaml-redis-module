@@ -73,7 +73,16 @@ value module_init (value _ctx, value name, value ver, value api_ver)
 }
 
 value module_create_command_internal(value _ctx, value name, value flags, value keyinfo){
-    return(RedisModule_CreateCommand((RedisModuleCtx*)_ctx, String_val(name), internalCommandWrapper, String_val(flags), Int_val(Field(keyinfo, 0)), Int_val((Field(keyinfo, 1))), Int_val(Field(keyinfo, 2))));
+    //CAMLparam4(_ctx, name, flags, keyinfo);
+    const char *cmd = String_val(name);
+    value *fn = caml_named_value(cmd);
+    if (!fn){
+        return (value)REDISMODULE_ERR;
+    }
+
+    caml_register_generational_global_root(fn);
+
+    return((value)RedisModule_CreateCommand((RedisModuleCtx*)_ctx, cmd, internalCommandWrapper, String_val(flags), Int_val(Field(keyinfo, 0)), Int_val((Field(keyinfo, 1))), Int_val(Field(keyinfo, 2))));
 }
 
 value module_get_selected_db(value ctx){
@@ -103,7 +112,8 @@ value reply_int64(value _ctx, value i){
 }
 
 value reply_int(value _ctx, value i){
-    return(Val_int(RedisModule_ReplyWithLongLong((RedisModuleCtx*)_ctx, Int_val(i))));
+    CAMLparam2(_ctx, i);
+    CAMLreturn(Val_int(RedisModule_ReplyWithLongLong((RedisModuleCtx*)_ctx, Int_val(i))));
 }
 
 value reply_simple_string(value _ctx, value s){
