@@ -5,6 +5,7 @@ LDFLAGS+=-L`ocamlc -where` -lasmrun_pic
 OBJ=\
 	redis_module_call_reply.o \
 	redis_module_string.o \
+	redis_module_key.o \
 	redis_module_stubs.o
 MODULE_PATH?=./mod
 MODULE?=example

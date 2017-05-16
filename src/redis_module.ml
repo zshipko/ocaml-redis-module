@@ -4,6 +4,32 @@ type status =
     | OK
     | ERR
 
+type mode =
+    | Read
+    | Write
+    | RW
+
+type key_type =
+    | Empty
+    | String
+    | List
+    | Hash
+    | Set
+    | Zset
+    | Module
+
+type reply_type =
+    | Unknown
+    | String
+    | Error
+    | Integer
+    | Array
+    | Null
+
+type list_flag =
+    | Head
+    | Tail
+
 let api_version_1 = 1
 
 module S = String
@@ -17,7 +43,7 @@ module Call_reply = struct
     let to_int x = match to_int64 x with
         | Some i -> Some (Int64.to_int i)
         | None -> None
-    external get_type : t -> int = "call_reply_get_type"
+    external get_type : t -> reply_type = "call_reply_get_type"
     external length : t -> int64 = "call_reply_length"
     external index : t -> int64 -> t option = "call_reply_index"
 end
@@ -62,6 +88,14 @@ end
 
 module Key = struct
     type t
+
+    external find_rstring : context -> String.t -> t = "key_find_rstring"
+
+    let find ctx s =
+        find_rstring ctx (String.from_string ctx s)
+
+    external get_type : t -> key_type = "key_type"
+    external length : t -> int64 = "key_length"
 end
 
 (* Internal functions *)
