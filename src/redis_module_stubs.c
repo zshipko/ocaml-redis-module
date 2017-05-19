@@ -18,7 +18,7 @@ value args_get(value a, value i){
     Args *args = Args_val(a);
 
     if (args->argc > Int_val(i)){
-        return Val_rstring(args->arg[Int_val(i)]);
+        return Val_value(args->arg[Int_val(i)]);
     }
 
     caml_failwith("Invalid argument");
@@ -133,8 +133,8 @@ value reply_string(value _ctx, value s){
     return(Val_int(RedisModule_ReplyWithStringBuffer(Context_val(_ctx), String_val(s), caml_string_length(s))));
 }
 
-value reply_rstring(value _ctx, value s){
-    return(Val_int(RedisModule_ReplyWithString(Context_val(_ctx), Rstring_val(s))));
+value reply_value(value _ctx, value s){
+    return(Val_int(RedisModule_ReplyWithString(Context_val(_ctx), Value_val(s))));
 }
 
 value reply_float(value _ctx, value f){

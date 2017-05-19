@@ -32,8 +32,6 @@ type list_flag =
 
 let api_version_1 = 1
 
-module S = String
-
 (* Call reply *)
 module Call_reply = struct
     type t
@@ -48,25 +46,25 @@ module Call_reply = struct
     external index : t -> int64 -> t option = "call_reply_index"
 end
 
-module String = struct
+module Value = struct
     type t
-    external to_string : t -> string = "rstring_to_string"
-    external to_int64 : t -> int64 = "rstring_to_int64"
+    external to_string : t -> string = "value_to_string"
+    external to_int64 : t -> int64 = "value_to_int64"
     let to_int s = to_int64 s |> Int64.to_int
-    external to_float : t -> float = "rstring_to_float"
-    external from_string : context -> string -> t = "rstring_from_string"
-    external from_call_reply : Call_reply.t -> t = "rstring_from_call_reply"
+    external to_float : t -> float = "value_to_float"
+    external from_string : context -> string -> t = "value_from_string"
+    external from_call_reply : Call_reply.t -> t = "value_from_call_reply"
     let from_int64 ctx i = from_string ctx (Int64.to_string i)
     let from_int ctx i = from_string ctx (string_of_int i)
     let from_float ctx  f = from_string ctx (string_of_float f)
-    external copy : context -> t -> t = "rstring_copy"
-    external append : context -> t -> string -> status = "rstring_append"
-    external compare : t -> t -> int = "rstring_compare"
+    external copy : context -> t -> t = "value_copy"
+    external append : context -> t -> string -> status = "value_append"
+    external compare : t -> t -> int = "value_compare"
 end
 
 module Args = struct
     type t
-    external get : t -> int -> String.t = "args_get"
+    external get : t -> int -> Value.t = "args_get"
     external length : t -> int = "args_length"
 end
 
@@ -81,21 +79,42 @@ module Reply = struct
     external array : context -> int -> status = "reply_array"
     external set_array_length : context -> int -> unit = "reply_set_array_length"
     external string : context -> string -> status = "reply_string"
-    external rstring : context -> String.t -> status = "reply_rstring"
+    external value : context -> Value.t -> status = "reply_value"
     external float : context -> float -> status = "reply_float"
     external call_reply : context -> Call_reply.t -> status = "reply_call_reply"
 end
 
+type hash_flag =
+    | HASH_NONE
+    | HASH_NX
+    | HASH_XX
+    | HASH_EXISTS
+
 module Key = struct
     type t
 
-    external find_rstring : context -> String.t -> t = "key_find_rstring"
-
-    let find ctx s =
-        find_rstring ctx (String.from_string ctx s)
+    external find : context -> Value.t -> t = "key_find"
 
     external get_type : t -> key_type = "key_type"
     external length : t -> int64 = "key_length"
+
+    external list_push : t -> list_flag -> Value.t -> status = "key_list_push"
+    external list_pop : t -> list_flag -> Value.t option ="key_list_pop"
+
+    external delete : t -> status = "key_delete"
+    external set : t -> Value.t -> status = "key_set"
+    external get_string : t -> string option = "key_get_string"
+    external truncate : t -> int64 = "key_truncate"
+    external get_expire : t -> int64 = "key_get_expire"
+    external set_expire : t -> int64 -> status = "key_set_expire"
+    external hash_get : t -> hash_flag -> Value.t array -> Value.t array = "key_hash_get"
+    external hash_set : t -> hash_flag -> (Value.t * Value.t) array -> status = "key_hash_set"
+    external hash_delete : unit -> Value.t = "key_hash_delete"
+    external zset_add : t -> float -> Value.t -> status = "key_zset_add"
+    external zset_score : t -> Value.t -> float option = "key_zset_score"
+
+    let no_expire = (-1L)
+
 end
 
 (* Internal functions *)
@@ -118,10 +137,10 @@ external get_selected_db : context -> int = "module_get_selected_db"
 external select_db : context -> int -> status = "module_select_db"
 
 let replicate ctx cmd args =
-    replicate_internal ctx cmd (S.concat " " args)
+    replicate_internal ctx cmd (String.concat " " args)
 
 external replicate_verbatim : context -> status = "module_replicate_verbatim"
 
 let call ctx cmd args =
-    call_internal ctx cmd (S.concat " " args)
+    call_internal ctx cmd (String.concat " " args)
 
