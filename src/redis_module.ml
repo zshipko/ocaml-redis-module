@@ -32,6 +32,9 @@ type list_flag =
 
 let api_version_1 = 1
 
+exception Wrong_arity
+exception Invalid_type
+
 (* Call reply *)
 module Call_reply = struct
     type t
@@ -64,8 +67,8 @@ end
 
 module Args = struct
     type t
-    external get : t -> int -> Value.t = "args_get"
     external length : t -> int = "args_length"
+    external get : t -> int -> Value.t = "args_get"
 end
 
 (* Reply *)
@@ -126,11 +129,23 @@ external replicate_internal : context ->  string -> string -> status = "module_r
 external init : context -> string -> int -> int -> status = "module_init"
 
 let on_load (fn : context -> Args.t -> status) =
+    Callback.register_exception "Wrong_arity" Wrong_arity;
+    Callback.register_exception "Invalid_type" Invalid_type;
     Callback.register "redis_module_on_load" fn
 
 let create_command ctx name (fn : context -> Args.t -> status) flags keyinfo =
-    Callback.register name (fun ctx args -> let x = fn ctx args in Gc.major (); Gc.minor (); x);
+    Callback.register name (fun ctx args ->
+        let x = try
+            fn ctx args
+        with Wrong_arity -> Reply.wrong_arity ctx
+            | Invalid_type -> Reply.error ctx "ERR invalid type"
+            | exc -> Reply.error ctx ("ERR " ^ Printexc.to_string exc) in Gc.major (); Gc.minor (); x);
     create_command_internal ctx name flags keyinfo
+
+let create_commands ctx cmds =
+    List.fold_right (fun (name, fn, flags, keyinfo) acc ->
+        if acc = ERR then ERR
+        else create_command ctx name fn flags keyinfo) cmds OK
 
 external get_selected_db : context -> int = "module_get_selected_db"
 

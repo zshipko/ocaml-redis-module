@@ -21,7 +21,7 @@ value args_get(value a, value i){
         return Val_value(args->arg[Int_val(i)]);
     }
 
-    caml_failwith("Invalid argument");
+    caml_raise(*caml_named_value("Wrong_arity"));
     return Val_unit;
 }
 
