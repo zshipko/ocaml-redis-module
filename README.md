@@ -1,17 +1,26 @@
-# ocaml-redis-module
+# redis-module
 
-**WARNING: This will probably crash Redis for non-trivial modules!**
+`redis-module` provides bindings to the [redis](https://github.com/antirez/redis) module interface in OCaml.
 
-`ocaml-redis-module` provides an interface for building [Redis](https://github.com/antirez/redis) modules in OCaml.
+## Installation
 
-## Building
+Using [opam](https://github.com/ocaml/opam):
 
-    make MODULE=example
+```shell
+$ opam pin add redis-module git+https://github.com/zshipko/ocaml-redis-module
+```
 
-## Running
+## Usage
 
-    redis-server --loadmodule ./mod/example.so
+To use `redis-module`
 
-## Example
+## Examples
 
-See `mod/example/example.ml`
+To build and run the example module run:
+
+```shell
+$ dune build example/example.so
+$ redis-server --loadmodule ./_build/default/example/example.so
+````
+
+See `example/example.ml` for mor information

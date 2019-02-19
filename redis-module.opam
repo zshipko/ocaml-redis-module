@@ -1,0 +1,26 @@
+opam-version: "2.0"
+maintainer: "Zach Shipko <zachshipko@gmail.com>"
+authors: ["Zach Shipko <zachshipko@gmail.com>"]
+homepage: "https://github.com/zshipko/ocaml-redis-module"
+doc: "https://zshipko.github.io/ocaml-redis-module/doc"
+license: "ISC"
+dev-repo: "git+https://github.com/zshipko/ocaml-redis-module.git"
+bug-reports: "https://github.com/zshipko/ocaml-redis-module/issues"
+tags: []
+
+depends:
+[
+    "ocaml" {>= "4.05.0"}
+    "dune" {build}
+]
+
+depopts: []
+
+build:
+[
+    ["dune" "build" "-p" name "-j" jobs]
+]
+
+synopsis: """
+Redis module bindings
+"""

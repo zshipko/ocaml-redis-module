@@ -1,0 +1,4 @@
+(executable
+  (name example)
+  (modes shared_object)
+  (libraries redis-module))
