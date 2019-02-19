@@ -3,12 +3,12 @@
 
 #include "redismodule.h"
 
-#include <caml/mlvalues.h>
 #include <caml/alloc.h>
-#include <caml/intext.h>
-#include <caml/fail.h>
 #include <caml/callback.h>
+#include <caml/fail.h>
+#include <caml/intext.h>
 #include <caml/memory.h>
+#include <caml/mlvalues.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -19,23 +19,23 @@ extern const value OK;
 extern const value ERR;
 
 typedef struct Args {
-    int argc;
-    RedisModuleString **arg;
+  int argc;
+  RedisModuleString **arg;
 } Args;
 
-#define Args_val(x) ((Args*)x)
+#define Args_val(x) ((Args *)x)
 #define Val_args(x) ((value)x)
 
-#define Context_val(x) ((RedisModuleCtx*)x)
+#define Context_val(x) ((RedisModuleCtx *)x)
 #define Val_context(x) ((value)x)
 
-#define Call_reply_val(x) ((RedisModuleCallReply*)x)
+#define Call_reply_val(x) ((RedisModuleCallReply *)x)
 #define Val_call_reply(x) ((value)x)
 
-#define Value_val(x) ((RedisModuleString*)x)
+#define Value_val(x) ((RedisModuleString *)x)
 #define Val_value(x) ((value)x)
 
-#define Key_val(x) ((RedisModuleKey*)x)
+#define Key_val(x) ((RedisModuleKey *)x)
 #define Val_key(x) ((value)x)
 
 #endif
