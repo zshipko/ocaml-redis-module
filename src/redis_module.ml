@@ -65,6 +65,9 @@ module Rstring = struct
 
   external to_string : t -> string = "rstring_to_string"
 
+  let to_value t =
+    try Some (Marshal.from_string (to_string t) 0) with _ -> None
+
   external to_int64 : t -> int64 = "rstring_to_int64"
 
   let to_int s = to_int64 s |> Int64.to_int
@@ -72,6 +75,8 @@ module Rstring = struct
   external to_float : t -> float = "rstring_to_float"
 
   external from_string : context -> string -> t = "rstring_from_string"
+
+  let from_value context x = from_string context (Marshal.to_string x [])
 
   external from_call_reply : Call_reply.t -> t = "rstring_from_call_reply"
 
@@ -134,7 +139,7 @@ type hash_flag =
 module Key = struct
   type t
 
-  external find : context -> Rstring.t -> t = "key_find"
+  external find : context -> Rstring.t -> mode -> t option = "key_find"
 
   external get_type : t -> key_type = "key_type"
 

@@ -63,11 +63,9 @@ static int internalCommandWrapper(RedisModuleCtx *ctx, RedisModuleString **argv,
   return internalNamedCallback(cmd, ctx, Val_args(&args));
 }
 
-// Define generic RedisModule_OnLoad
 int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv,
                        int argc) {
   caml_startup((char **)default_args);
-
   Args args = {argc, argv};
   return internalNamedCallback("redis_module_on_load", ctx, Val_args(&args));
 }
@@ -76,8 +74,7 @@ value module_init(value _ctx, value name, value ver, value api_ver) {
   CAMLparam4(_ctx, name, ver, api_ver);
   CAMLlocal1(r);
   RedisModuleCtx *ctx = (RedisModuleCtx *)_ctx;
-  r = Val_int(
-      RedisModule_Init(ctx, String_val(name), Int_val(ver), Int_val(api_ver)));
+  r = RedisModule_Init(ctx, String_val(name), Int_val(ver), Int_val(api_ver));
   CAMLreturn(r);
 }
 

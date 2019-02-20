@@ -59,6 +59,8 @@ module Rstring : sig
 
   external to_string : t -> string = "rstring_to_string"
 
+  val to_value : t -> 'a option
+
   external to_int64 : t -> int64 = "rstring_to_int64"
 
   val to_int : t -> int
@@ -66,6 +68,8 @@ module Rstring : sig
   external to_float : t -> float = "rstring_to_float"
 
   external from_string : context -> string -> t = "rstring_from_string"
+
+  val from_value : context -> 'a -> t
 
   external from_call_reply : Call_reply.t -> t = "rstring_from_call_reply"
 
@@ -127,7 +131,7 @@ type hash_flag =
 module Key : sig
   type t
 
-  external find : context -> Rstring.t -> t = "key_find"
+  external find : context -> Rstring.t -> mode -> t option = "key_find"
 
   external get_type : t -> key_type = "key_type"
 

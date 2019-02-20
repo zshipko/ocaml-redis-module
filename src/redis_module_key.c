@@ -15,8 +15,14 @@
 value key_find(value ctx, value keyname, value mode) {
   CAMLparam3(ctx, keyname, mode);
   CAMLlocal1(r);
-  r = Val_key(RedisModule_OpenKey(Context_val(ctx), Rstring_val(keyname),
-                                  convert_mode(mode)));
+  RedisModuleKey *key = RedisModule_OpenKey(
+      Context_val(ctx), Rstring_val(keyname), convert_mode(mode));
+  if (!key) {
+    r = None;
+  } else {
+    r = Some(Val_key(key));
+  }
+
   CAMLreturn(r);
 }
 

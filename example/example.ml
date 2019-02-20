@@ -4,8 +4,10 @@ let echo ctx args =
   Reply.simple_string ctx (Rstring.to_string (Args.get args 1))
 
 let add ctx args =
-  Reply.int ctx
-    (Rstring.to_int (Args.get args 1) + Rstring.to_int (Args.get args 2))
+  let r =
+    Rstring.to_int (Args.get args 1) + Rstring.to_int (Args.get args 2)
+  in
+  Reply.int ctx r
 
 let sha256 ctx args =
   let s = Rstring.to_string (Args.get args 1) in
