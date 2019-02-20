@@ -22,7 +22,7 @@ value args_get(value a, value i) {
   Args *args = Args_val(a);
 
   if (args->argc > Int_val(i)) {
-    r = Val_value(args->arg[Int_val(i)]);
+    r = Val_rstring(args->arg[Int_val(i)]);
   } else {
     caml_raise(*caml_named_value("Wrong_arity"));
   }
@@ -193,10 +193,10 @@ value reply_string(value _ctx, value s) {
   CAMLreturn(r);
 }
 
-value reply_value(value _ctx, value s) {
+value reply_rstring(value _ctx, value s) {
   CAMLparam2(_ctx, s);
   CAMLlocal1(r);
-  r = (Val_int(RedisModule_ReplyWithString(Context_val(_ctx), Value_val(s))));
+  r = (Val_int(RedisModule_ReplyWithString(Context_val(_ctx), Rstring_val(s))));
   CAMLreturn(r);
 }
 

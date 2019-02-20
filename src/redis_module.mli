@@ -30,14 +30,13 @@ type list_flag =
   | Head
   | Tail
 
-let api_version_1 = 1
+val api_version_1 : int
 
 exception Wrong_arity
 
 exception Invalid_type
 
-(* Call reply *)
-module Call_reply = struct
+module Call_reply : sig
   type t
 
   external proto : t -> string = "call_reply_proto"
@@ -46,12 +45,7 @@ module Call_reply = struct
 
   external to_int64 : t -> int64 option = "call_reply_to_int64"
 
-  let to_int x =
-    match to_int64 x with
-    | Some i ->
-        Some (Int64.to_int i)
-    | None ->
-        None
+  val to_int : t -> int option
 
   external get_type : t -> reply_type = "call_reply_get_type"
 
@@ -60,14 +54,14 @@ module Call_reply = struct
   external get : t -> int64 -> t option = "call_reply_get"
 end
 
-module Rstring = struct
+module Rstring : sig
   type t
 
   external to_string : t -> string = "rstring_to_string"
 
   external to_int64 : t -> int64 = "rstring_to_int64"
 
-  let to_int s = to_int64 s |> Int64.to_int
+  val to_int : t -> int
 
   external to_float : t -> float = "rstring_to_float"
 
@@ -75,11 +69,11 @@ module Rstring = struct
 
   external from_call_reply : Call_reply.t -> t = "rstring_from_call_reply"
 
-  let from_int64 ctx i = from_string ctx (Int64.to_string i)
+  val from_int64 : context -> int64 -> t
 
-  let from_int ctx i = from_string ctx (string_of_int i)
+  val from_int : context -> int -> t
 
-  let from_float ctx f = from_string ctx (string_of_float f)
+  val from_float : context -> float -> t
 
   external copy : context -> t -> t = "rstring_copy"
 
@@ -88,7 +82,7 @@ module Rstring = struct
   external compare : t -> t -> int = "rstring_compare"
 end
 
-module Args = struct
+module Args : sig
   type t
 
   external length : t -> int = "args_length"
@@ -96,8 +90,7 @@ module Args = struct
   external get : t -> int -> Rstring.t = "args_get"
 end
 
-(* Reply *)
-module Reply = struct
+module Reply : sig
   external wrong_arity : context -> status = "reply_wrong_arity"
 
   external int64 : context -> int64 -> status = "reply_int64"
@@ -131,7 +124,7 @@ type hash_flag =
   | HASH_XX
   | HASH_EXISTS
 
-module Key = struct
+module Key : sig
   type t
 
   external find : context -> Rstring.t -> t = "key_find"
@@ -170,57 +163,33 @@ module Key = struct
 
   external zset_score : t -> Rstring.t -> float option = "key_zset_score"
 
-  let no_expire = -1L
+  val no_expire : int64
 end
 
-(* Internal functions *)
-external create_command_internal :
-  context -> string -> string -> int * int * int -> status
-  = "module_create_command_internal"
-
-external call_internal :
-  context -> string -> string -> Call_reply.t
-  = "module_call_internal"
-
-external replicate_internal :
-  context -> string -> string -> status
-  = "module_replicate_internal"
-
-(* General module functions *)
 external init : context -> string -> int -> int -> status = "module_init"
 
-let on_load (fn : context -> Args.t -> status) =
-  Callback.register_exception "Wrong_arity" Wrong_arity;
-  Callback.register_exception "Invalid_type" Invalid_type;
-  Callback.register "redis_module_on_load" fn
+val on_load : (context -> Args.t -> status) -> unit
 
-let create_command ctx name (fn : context -> Args.t -> status) flags keyinfo =
-  Callback.register name (fun ctx args ->
-      let x =
-        try fn ctx args with
-        | Wrong_arity ->
-            Reply.wrong_arity ctx
-        | Invalid_type ->
-            Reply.error ctx "ERR invalid type"
-        | exc ->
-            Reply.error ctx ("ERR " ^ Printexc.to_string exc)
-      in
-      x );
-  create_command_internal ctx name flags keyinfo
+val create_command :
+     context
+  -> string
+  -> (context -> Args.t -> status)
+  -> string
+  -> int * int * int
+  -> status
 
-let create_commands ctx cmds =
-  List.fold_right
-    (fun (name, fn, flags, keyinfo) acc ->
-      if acc = ERR then ERR else create_command ctx name fn flags keyinfo )
-    cmds OK
+val create_commands :
+     context
+  -> (string * (context -> Args.t -> status) * string * (int * int * int))
+     list
+  -> status
 
 external get_selected_db : context -> int = "module_get_selected_db"
 
 external select_db : context -> int -> status = "module_select_db"
 
-let replicate ctx cmd args =
-  replicate_internal ctx cmd (String.concat " " args)
+val replicate : context -> string -> string list -> status
 
 external replicate_verbatim : context -> status = "module_replicate_verbatim"
 
-let call ctx cmd args = call_internal ctx cmd (String.concat " " args)
+val call : context -> string -> string list -> Call_reply.t

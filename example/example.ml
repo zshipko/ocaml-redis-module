@@ -1,14 +1,14 @@
 open Redis_module
 
 let echo ctx args =
-  Reply.simple_string ctx (Value.to_string (Args.get args 1))
+  Reply.simple_string ctx (Rstring.to_string (Args.get args 1))
 
 let add ctx args =
   Reply.int ctx
-    (Value.to_int (Args.get args 1) + Value.to_int (Args.get args 2))
+    (Rstring.to_int (Args.get args 1) + Rstring.to_int (Args.get args 2))
 
 let sha256 ctx args =
-  let s = Value.to_string (Args.get args 1) in
+  let s = Rstring.to_string (Args.get args 1) in
   let h = Digestif.digest_string Digestif.sha256 s in
   Reply.simple_string ctx (Digestif.to_hex Digestif.sha256 h)
 

@@ -15,7 +15,7 @@
 value key_find(value ctx, value keyname, value mode) {
   CAMLparam3(ctx, keyname, mode);
   CAMLlocal1(r);
-  r = Val_key(RedisModule_OpenKey(Context_val(ctx), Value_val(keyname),
+  r = Val_key(RedisModule_OpenKey(Context_val(ctx), Rstring_val(keyname),
                                   convert_mode(mode)));
   CAMLreturn(r);
 }
@@ -37,7 +37,8 @@ value key_length(value key) {
 value key_list_push(value key, value where, value v) {
   CAMLparam3(key, where, v);
   CAMLlocal1(r);
-  r = Val_int(RedisModule_ListPush(Key_val(key), Int_val(where), Value_val(v)));
+  r = Val_int(
+      RedisModule_ListPush(Key_val(key), Int_val(where), Rstring_val(v)));
   CAMLreturn(r);
 }
 
@@ -48,7 +49,7 @@ value key_list_pop(value key, value where) {
   if (!str) {
     r = None;
   } else {
-    r = Some(Val_value(str));
+    r = Some(Val_rstring(str));
   }
 
   CAMLreturn(r);
@@ -64,7 +65,7 @@ value key_delete(value key) {
 value key_set(value key, value v) {
   CAMLparam2(key, v);
   CAMLlocal1(r);
-  r = Val_int(RedisModule_StringSet(Key_val(key), Value_val(v)));
+  r = Val_int(RedisModule_StringSet(Key_val(key), Rstring_val(v)));
   CAMLreturn(r);
 }
 
@@ -106,7 +107,7 @@ value key_set_expire(value key, value i) {
 value key_hash_delete(value unit) {
   CAMLparam1(unit);
   CAMLlocal1(r);
-  r = Val_value(REDISMODULE_HASH_DELETE);
+  r = Val_rstring(REDISMODULE_HASH_DELETE);
   CAMLreturn(r);
 }
 
@@ -121,7 +122,7 @@ value key_hash_set(value key, value flag, value arr) {
   for (i = 0; i < len; i++) {
     value v = Field(arr, i);
     if (RedisModule_HashSet(Key_val(key), convert_hash_flag(flag),
-                            Value_val(Field(v, 0)), Value_val(Field(v, 1)),
+                            Rstring_val(Field(v, 0)), Rstring_val(Field(v, 1)),
                             NULL) != REDISMODULE_OK) {
       r = ERR;
       break;
@@ -142,11 +143,11 @@ value key_hash_get(value key, value flag, value arr) {
   RedisModuleString *s;
   for (i = 0; i < len; i++) {
     value v = Field(arr, i);
-    if (RedisModule_HashGet(Key_val(key), convert_hash_flag(flag), Value_val(v),
-                            &s, NULL) != REDISMODULE_OK) {
+    if (RedisModule_HashGet(Key_val(key), convert_hash_flag(flag),
+                            Rstring_val(v), &s, NULL) != REDISMODULE_OK) {
       CAMLreturn(None);
     }
-    Field(dst, i) = Val_value(s);
+    Field(dst, i) = Val_rstring(s);
   }
 
   r = Some(dst);
@@ -157,7 +158,7 @@ value key_zset_add(value key, value score, value elem) {
   CAMLparam3(key, score, elem);
   CAMLlocal1(r);
   r = Val_int(RedisModule_ZsetAdd(Key_val(key), Double_val(score),
-                                  Value_val(elem), NULL));
+                                  Rstring_val(elem), NULL));
   CAMLreturn(r);
 }
 
@@ -166,7 +167,7 @@ value key_zset_score(value key, value elem) {
   CAMLlocal2(dst, r);
 
   double d;
-  if (RedisModule_ZsetScore(Key_val(key), Value_val(elem), &d) ==
+  if (RedisModule_ZsetScore(Key_val(key), Rstring_val(elem), &d) ==
       REDISMODULE_ERR) {
     r = None;
   } else {
@@ -183,7 +184,7 @@ value key_zset_rem(value key, value elem) {
   CAMLlocal1(r);
   int deleted;
 
-  RedisModule_ZsetRem(Key_val(key), Value_val(elem), &deleted);
+  RedisModule_ZsetRem(Key_val(key), Rstring_val(elem), &deleted);
   r = deleted ? OK : ERR;
   CAMLreturn(r);
 }

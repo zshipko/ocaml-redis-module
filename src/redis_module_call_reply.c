@@ -76,7 +76,7 @@ value call_reply_length(value cr) {
   CAMLreturn(r);
 }
 
-value call_reply_index(value cr, value i) {
+value call_reply_get(value cr, value i) {
   CAMLparam2(cr, i);
   CAMLlocal1(r);
 

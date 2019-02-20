@@ -2,3 +2,8 @@
   (name example)
   (modes shared_object)
   (libraries redis-module digestif.c))
+
+(alias
+    (name runtest)
+    (deps example.so)
+    (action (run redis-server --loadmodule %{dep:example.so})))

@@ -32,8 +32,8 @@ typedef struct Args {
 #define Call_reply_val(x) ((RedisModuleCallReply *)x)
 #define Val_call_reply(x) ((value)x)
 
-#define Value_val(x) ((RedisModuleString *)x)
-#define Val_value(x) ((value)x)
+#define Rstring_val(x) ((RedisModuleString *)x)
+#define Val_rstring(x) ((value)x)
 
 #define Key_val(x) ((RedisModuleKey *)x)
 #define Val_key(x) ((value)x)
