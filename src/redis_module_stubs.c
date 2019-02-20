@@ -172,7 +172,11 @@ value reply_null(value _ctx) {
 value reply_array(value _ctx, value i) {
   CAMLparam2(_ctx, i);
   CAMLlocal1(r);
-  r = Val_int(RedisModule_ReplyWithArray(Context_val(_ctx), Int_val(i)));
+  int n = REDISMODULE_POSTPONED_ARRAY_LEN;
+  if (i != None) {
+    n = Int_val(Field(i, 0));
+  }
+  r = Val_int(RedisModule_ReplyWithArray(Context_val(_ctx), n));
   CAMLreturn(r);
 }
 

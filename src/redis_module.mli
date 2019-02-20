@@ -61,11 +61,19 @@ module Rstring : sig
 
   val to_value : t -> 'a option
 
-  external to_int64 : t -> int64 = "rstring_to_int64"
+  val to_value_exn : t -> 'a
 
-  val to_int : t -> int
+  external to_int64 : t -> int64 option = "rstring_to_int64"
 
-  external to_float : t -> float = "rstring_to_float"
+  val to_int64_exn : t -> int64
+
+  val to_int : t -> int option
+
+  val to_int_exn : t -> int
+
+  external to_float : t -> float option = "rstring_to_float"
+
+  val to_float_exn : t -> float
 
   external from_string : context -> string -> t = "rstring_from_string"
 
@@ -84,6 +92,8 @@ module Rstring : sig
   external append : context -> t -> string -> status = "rstring_append"
 
   external compare : t -> t -> int = "rstring_compare"
+
+  val equal : t -> t -> bool
 end
 
 module Args : sig
@@ -107,7 +117,7 @@ module Reply : sig
 
   external null : context -> status = "reply_null"
 
-  external array : context -> int -> status = "reply_array"
+  external array : context -> ?len:int -> status = "reply_array"
 
   external set_array_length :
     context -> int -> unit

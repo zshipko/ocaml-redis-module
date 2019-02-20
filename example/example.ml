@@ -5,7 +5,8 @@ let echo ctx args =
 
 let add ctx args =
   let r =
-    Rstring.to_int (Args.get args 1) + Rstring.to_int (Args.get args 2)
+    Rstring.to_int_exn (Args.get args 1)
+    + Rstring.to_int_exn (Args.get args 2)
   in
   Reply.int ctx r
 

@@ -12,20 +12,28 @@ value rstring_to_string(value str) {
 
 value rstring_to_int64(value str) {
   CAMLparam1(str);
-  CAMLlocal1(r);
+  CAMLlocal2(r, s);
   long long n = 0;
-  RedisModule_StringToLongLong(Rstring_val(str), &n);
-  r = caml_copy_int64(n);
-  CAMLreturn(r);
+  if (RedisModule_StringToLongLong(Rstring_val(str), &n) != REDISMODULE_OK) {
+    s = None;
+  } else {
+    r = caml_copy_int64(n);
+    s = Some(r);
+  }
+  CAMLreturn(s);
 }
 
 value rstring_to_float(value str) {
   CAMLparam1(str);
-  CAMLlocal1(r);
+  CAMLlocal2(r, s);
   double d = 0.0;
-  RedisModule_StringToDouble(Rstring_val(str), &d);
-  r = caml_copy_double(d);
-  CAMLreturn(r);
+  if (RedisModule_StringToDouble(Rstring_val(str), &d) != REDISMODULE_OK) {
+    s = None;
+  } else {
+    r = caml_copy_double(d);
+    s = Some(r);
+  }
+  CAMLreturn(s);
 }
 
 value rstring_append(value ctx, value str, value b) {
@@ -47,7 +55,12 @@ value rstring_compare(value a, value b) {
 value rstring_from_call_reply(value cr) {
   CAMLparam1(cr);
   CAMLlocal1(r);
-  r = Val_rstring(RedisModule_CreateStringFromCallReply(Call_reply_val(cr)));
+  RedisModuleString *str =
+      RedisModule_CreateStringFromCallReply(Call_reply_val(cr));
+  if (!str) {
+    caml_raise(*caml_named_value("Invalid_type"));
+  }
+  r = Val_rstring(str);
   CAMLreturn(r);
 }
 

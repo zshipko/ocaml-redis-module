@@ -46,8 +46,8 @@ module Call_reply = struct
 
   external to_int64 : t -> int64 option = "call_reply_to_int64"
 
-  let to_int x =
-    match to_int64 x with
+  let to_int t =
+    match to_int64 t with
     | Some i ->
         Some (Int64.to_int i)
     | None ->
@@ -68,11 +68,30 @@ module Rstring = struct
   let to_value t =
     try Some (Marshal.from_string (to_string t) 0) with _ -> None
 
-  external to_int64 : t -> int64 = "rstring_to_int64"
+  let unwrap = function
+    | Some x ->
+        x
+    | None ->
+        raise Invalid_type
 
-  let to_int s = to_int64 s |> Int64.to_int
+  let to_value_exn t = to_value t |> unwrap
 
-  external to_float : t -> float = "rstring_to_float"
+  external to_int64 : t -> int64 option = "rstring_to_int64"
+
+  let to_int64_exn t = to_int64 t |> unwrap
+
+  let to_int s =
+    match to_int64 s with
+    | Some x ->
+        Some (Int64.to_int x)
+    | None ->
+        None
+
+  let to_int_exn t = to_int t |> unwrap
+
+  external to_float : t -> float option = "rstring_to_float"
+
+  let to_float_exn t = to_float t |> unwrap
 
   external from_string : context -> string -> t = "rstring_from_string"
 
@@ -91,6 +110,8 @@ module Rstring = struct
   external append : context -> t -> string -> status = "rstring_append"
 
   external compare : t -> t -> int = "rstring_compare"
+
+  let equal a b = compare a b = 0
 end
 
 module Args = struct
@@ -115,7 +136,7 @@ module Reply = struct
 
   external null : context -> status = "reply_null"
 
-  external array : context -> int -> status = "reply_array"
+  external array : context -> ?len:int -> status = "reply_array"
 
   external set_array_length :
     context -> int -> unit
@@ -207,6 +228,8 @@ let create_command ctx name (fn : context -> Args.t -> status) flags keyinfo =
             Reply.wrong_arity ctx
         | Invalid_type ->
             Reply.error ctx "ERR invalid type"
+        | Failure s ->
+            Reply.error ctx ("ERR" ^ s)
         | exc ->
             Reply.error ctx ("ERR " ^ Printexc.to_string exc)
       in
