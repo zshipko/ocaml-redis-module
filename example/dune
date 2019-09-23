@@ -6,4 +6,4 @@
 (alias
     (name runtest)
     (deps example.so)
-    (action (run redis-server --loadmodule %{dep:example.so})))
+    (action (run redis-server --loadmodule ./%{dep:example.so})))
