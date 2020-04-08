@@ -40,7 +40,7 @@ value args_length(value a) {
 
 static int internalNamedCallback(const char *name, RedisModuleCtx *ctx,
                                  value args) {
-  value *fn = caml_named_value(name);
+  const value *fn = caml_named_value(name);
   if (!fn) {
     return REDISMODULE_ERR;
   }
@@ -84,7 +84,7 @@ value module_create_command_internal(value _ctx, value name, value flags,
   CAMLlocal1(r);
 
   const char *cmd = String_val(name);
-  value *fn = caml_named_value(cmd);
+  const value *fn = caml_named_value(cmd);
   if (!fn) {
     r = (value)REDISMODULE_ERR;
   } else {
